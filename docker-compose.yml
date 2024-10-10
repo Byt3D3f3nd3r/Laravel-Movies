@@ -27,12 +27,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: laravel
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Remove this line if you want to set a password!!!! Don't do this in production
+      #MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./cnf/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - laravel
 
