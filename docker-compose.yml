@@ -1,0 +1,71 @@
+#version: '3.8'
+
+services:
+  # Laravel App (PHP + Composer)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./vendor:/var/www/vendor
+      - ./storage:/var/www/storage
+    networks:
+      - laravel
+    depends_on:
+      - mysql
+      - redis
+
+  # MySQL Database
+  mysql:
+    image: mysql:5.7
+    container_name: laravel_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Remove this line if you want to set a password!!!! Don't do this in production
+      #MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./cnf/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - laravel
+
+  # Redis Cache
+  redis:
+    image: redis:latest
+    container_name: laravel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:latest
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "5054:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www
+    networks:
+      - laravel
+    depends_on:
+      - app
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  laravel:
+    driver: bridge
