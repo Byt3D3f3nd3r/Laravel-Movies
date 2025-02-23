@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    redis-server
+    redis-server \
+    && docker-php-ext-install zip
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
